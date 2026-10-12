@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swapnil Singh | Cybersec Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #080c10;
+            --terminal-bg: rgba(13, 17, 23, 0.92);
+            --card-bg: rgba(22, 27, 34, 0.85);
+            --neon-green: #00ff66;
+            --neon-cyan: #00f0ff;
+            --neon-red: #ff3366;
+            --text-main: #e6edf3;
+            --text-dim: #8b949e;
+            --border-glow: #30363d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Fira Code', monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Matrix Canvas Background */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        /* Hero Header */
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 102, 0.1);
+            color: var(--neon-green);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 255, 102, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+
+        h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        h1 .glow {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Interactive Terminal Card */
+        .terminal {
+            background: var(--terminal-bg);
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.1);
+            backdrop-filter: blur(8px);
+            margin-bottom: 4rem;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: #161b22;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .terminal-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .btn-red { background: #ff5f56; }
+        .btn-yellow { background: #ffbd2e; }
+        .btn-green { background: #27c93f; }
+
+        .terminal-title {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .terminal-body {
+            padding: 20px;
+            min-height: 220px;
+            max-height: 380px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .terminal-output {
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-prompt {
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            width: 100%;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: "//";
+            color: var(--neon-green);
+        }
+
+        /* Grid Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cyber-card {
+            background: var(--card-bg);
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-card:hover {
+            border-color: var(--neon-green);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 255, 102, 0.15);
+        }
+
+        .cyber-card h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .cyber-card p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .tags {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            background: rgba(48, 54, 61, 0.6);
+            color: var(--neon-cyan);
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        /* Contact Section Styles */
+        .contact-box {
+            background: var(--card-bg);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .contact-box p {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid #30363d;
+            color: var(--text-main);
+            background: rgba(33, 38, 45, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .contact-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .contact-btn.primary {
+            background: rgba(0, 255, 102, 0.1);
+            border-color: rgba(0, 255, 102, 0.4);
+            color: var(--neon-green);
+        }
+
+        .contact-btn.primary:hover {
+            background: rgba(0, 255, 102, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 255, 102, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #21262d;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        footer span {
+            color: var(--neon-green);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrixCanvas"></canvas>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <header>
+            <div class="status-badge">
+                <span class="pulse-dot"></span> System Status: Online & Exploring
+            </div>
+            <h1>Swapnil <span class="glow">Singh</span></h1>
+            <p class="subtitle">Aspiring Cybersecurity Specialist & Tech Explorer. Currently learning ethical hacking, network defenses, and threat analysis.</p>
+        </header>
+
+        <!-- Interactive Terminal Simulator -->
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-btns">
+                    <span class="btn-circle btn-red"></span>
+                    <span class="btn-circle btn-yellow"></span>
+                    <span class="btn-circle btn-green"></span>
+                </div>
+                <div class="terminal-title">swapnil@security-lab: ~</div>
+                <div style="font-size: 0.75rem; color: #8b949e;">bash</div>
+            </div>
+            <div class="terminal-body" id="termBody">
+                <div class="terminal-output" id="termOutput">Type <span style="color: var(--neon-green);">'help'</span> to see available commands or try <span style="color: var(--neon-cyan);">'hack'</span> for some fun.</div>
+                <div class="terminal-input-line">
+                    <span class="terminal-prompt">guest@swapnil:~$</span>
+                    <input type="text" id="termInput" class="terminal-input" autofocus autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+        </div>
+
+        <!-- Arsenal / Tooling Section -->
+        <section>
+            <h2 class="section-title">Cyber Arsenal & Learning Path</h2>
+            <div class="cards-grid">
+                <div class="cyber-card">
+                    <h3>🛡️ Network Security</h3>
+                    <p>Learning packet inspection, routing protocols, firewalls, and securing digital networks against intrusions.</p>
+                    <div class="tags">
+                        <span class="tag">Wireshark</span>
+                        <span class="tag">TCP/IP</span>
+                        <span class="tag">Nmap</span>
+                    </div>
+                </div>
+
+                <div class="cyber-card">
+                    <h3>💻 Linux & Terminal</h3>
+                    <p>Building core competence in bash scripting, privilege escalations, and system administration workflows.</p>
+                    <div class="tags">
+                        <span class="tag">Kali Linux</span>
+                        <span class="tag">Bash</span>
+                        <span class="tag">Ubuntu</span>
+                    </div>
+                </div>
+
+                <div class="cyber-card">
+                    <h3>🎯 Web & App Security</h3>
+                    <p>Understanding OWASP Top 10 vulnerabilities like SQL Injection, XSS, authentication bypass, and basic recon.</p>
+                    <div class="tags">
+                        <span class="tag">Burp Suite</span>
+                        <span class="tag">OWASP 10</span>
+                        <span class="tag">Bug Hunting</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section>
+            <h2 class="section-title">Connect & Transmit Signals</h2>
+            <div class="contact-box">
+                <p>Have an inquiry, project idea, or want to discuss security? Drop an encrypted line below:</p>
+                <div class="contact-links">
+                    <!-- Email button: replace your.email@example.com with your real email -->
+                    <a href="mailto:your.email@example.com" class="contact-btn primary">
+                        ✉️ Send Email
+                    </a>
+                    <!-- Replace with your actual LinkedIn link -->
+                    <a href="https://linkedin.com" target="_blank" class="contact-btn">
+                        💼 LinkedIn
+                    </a>
+                    <!-- Replace with your actual GitHub link -->
+                    <a href="https://github.com" target="_blank" class="contact-btn">
+                        🐙 GitHub
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Built by <span>Swapnil Singh</span> | Secured with curiosity ⚡</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const chars = '01ABCDEF456789XYZ';
+        const fontSize = 14;
+        const columns = Math.floor(width / fontSize);
+        const drops = Array(columns).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(8, 12, 16, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#00ff66';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 45);
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Terminal logic
+        const input = document.getElementById('termInput');
+        const output = document.getElementById('termOutput');
+        const body = document.getElementById('termBody');
+
+        const commands = {
+            'help': "Available commands:\n  about    - Learn who Swapnil is\n  skills   - View security domains being studied\n  contact  - View transmission channels\n  hack     - Run simulated penetration test\n  clear    - Clear terminal screen",
+            'about': "Swapnil Singh: An ambitious cybersecurity learner focused on penetration testing, digital defense, and building secure systems.",
+            'skills': "Active Studies: Network Analysis (Wireshark, Nmap), Linux administration, CTF challenges, Vulnerability Assessment.",
+            'contact': "📡 Signal Channels:\n  Email: your.email@example.com\n  LinkedIn: linkedin.com\n  GitHub: github.com",
+            'hack': "Initializing penetration test...\n[+] Scanning targets: 192.168.1.1\n[+] Bypassing firewall... Success!\n[+] Decrypting payload... Done!\n[✓] ACCESS GRANTED: Swapnil is now in the mainframe."
+        };
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = input.value.trim().toLowerCase();
+                if (val === 'clear') {
+                    output.innerText = '';
+                } else if (val in commands) {
+                    output.innerText += `\nguest@swapnil:~$ ${input.value}\n${commands[val]}\n`;
+                } else if (val !== '') {
+                    output.innerText += `\nguest@swapnil:~$ ${input.value}\nCommand not found: '${val}'. Type 'help' for available commands.\n`;
+                }
+                input.value = '';
+                body.scrollTop = body.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
