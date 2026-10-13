@@ -478,7 +478,7 @@
             }
         });
     </script>
-    <!-- ================== AI CHAT ASSISTANT START ================== -->
+   <!-- ================== AI CHAT ASSISTANT (ENGLISH) START ================== -->
 <style>
   #ai-chat-btn {
     position: fixed;
@@ -598,7 +598,7 @@
     <span class="close-btn" onclick="togglePortfolioChat()">✕</span>
   </div>
   <div id="ai-chat-msgs">
-    <div class="msg-ai">Hello! Swapnil ke cybersecurity skills, certifications ya projects ke baare me kuch bhi poochhein.</div>
+    <div class="msg-ai">Hello! Feel free to ask me anything about Swapnil's cybersecurity skills, projects, or background.</div>
   </div>
   <div id="ai-chat-bar">
     <input type="text" id="ai-input-val" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') executeAiQuery()" />
@@ -609,7 +609,7 @@
 <button id="ai-chat-btn" onclick="togglePortfolioChat()">💬 Chat with AI</button>
 
 <script>
-  // 1. Google AI Studio (aistudio.google.com) se free API Key leke yahan daal do
+  // Paste your Gemini API key from https://aistudio.google.com/
   const GEMINI_API_TOKEN = "PASTE_YOUR_GEMINI_API_KEY_HERE";
 
   function togglePortfolioChat() {
@@ -635,11 +635,11 @@
     // AI Loading Message
     const botDiv = document.createElement("div");
     botDiv.className = "msg-ai";
-    botDiv.innerText = "Analyzing response...";
+    botDiv.innerText = "Thinking...";
     chatArea.appendChild(botDiv);
 
     try {
-      const systemPrompt = "You are the AI assistant representing Swapnil Singh's Cyber Security Portfolio. Provide short, smart, professional replies answering questions about Swapnil's cyber security knowledge, penetration testing, skills, and projects.";
+      const systemPrompt = "You are the AI assistant representing Swapnil Singh's Cyber Security Portfolio. Respond strictly in professional English. Keep your answers concise, smart, and focused on Swapnil's skills, certifications, and projects.";
 
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_TOKEN}`, {
         method: "POST",
@@ -655,11 +655,11 @@
       const output = json.candidates?.[0]?.content?.parts?.[0]?.text;
       botDiv.innerText = output ? output.trim() : "Unable to generate response right now.";
     } catch (e) {
-      botDiv.innerText = "API key missing or network error. Please configure the Gemini API key.";
+      botDiv.innerText = "Error connecting to AI service. Please verify the API key.";
     }
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 </script>
-<!-- ================== AI CHAT ASSISTANT END ================== -->
+<!-- ================== AI CHAT ASSISTANT (ENGLISH) END ================== -->
 </body>
 </html>
