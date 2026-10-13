@@ -478,5 +478,188 @@
             }
         });
     </script>
+    <!-- ================== AI CHAT ASSISTANT START ================== -->
+<style>
+  #ai-chat-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #00ff66;
+    color: #080c10;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-family: 'Fira Code', monospace;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+    z-index: 99999;
+    transition: transform 0.2s ease;
+  }
+  #ai-chat-btn:hover {
+    transform: scale(1.05);
+  }
+  #ai-chat-panel {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    width: 320px;
+    height: 420px;
+    background: rgba(13, 17, 23, 0.95);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 99999;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    font-family: 'Inter', sans-serif;
+  }
+  #ai-chat-head {
+    background: #161b22;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #30363d;
+    font-size: 13px;
+    color: #00ff66;
+    font-family: 'Fira Code', monospace;
+  }
+  #ai-chat-head span.close-btn {
+    cursor: pointer;
+    color: #8b949e;
+    font-weight: bold;
+  }
+  #ai-chat-msgs {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .msg-ai {
+    background: #21262d;
+    color: #e6edf3;
+    padding: 8px 12px;
+    border-radius: 8px 8px 8px 2px;
+    align-self: flex-start;
+    max-width: 82%;
+    border-left: 2px solid #00ff66;
+    line-height: 1.4;
+  }
+  .msg-user {
+    background: #00ff66;
+    color: #080c10;
+    padding: 8px 12px;
+    border-radius: 8px 8px 2px 8px;
+    align-self: flex-end;
+    max-width: 82%;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  #ai-chat-bar {
+    display: flex;
+    padding: 8px;
+    border-top: 1px solid #30363d;
+    background: #161b22;
+  }
+  #ai-input-val {
+    flex: 1;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    outline: none;
+    font-size: 13px;
+  }
+  #ai-input-val:focus {
+    border-color: #00ff66;
+  }
+  #ai-send-btn {
+    background: #00ff66;
+    border: none;
+    color: #080c10;
+    padding: 0 14px;
+    margin-left: 6px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+</style>
+
+<div id="ai-chat-panel">
+  <div id="ai-chat-head">
+    <span>[AI] Swapnil Assistant</span>
+    <span class="close-btn" onclick="togglePortfolioChat()">✕</span>
+  </div>
+  <div id="ai-chat-msgs">
+    <div class="msg-ai">Hello! Swapnil ke cybersecurity skills, certifications ya projects ke baare me kuch bhi poochhein.</div>
+  </div>
+  <div id="ai-chat-bar">
+    <input type="text" id="ai-input-val" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') executeAiQuery()" />
+    <button id="ai-send-btn" onclick="executeAiQuery()">Send</button>
+  </div>
+</div>
+
+<button id="ai-chat-btn" onclick="togglePortfolioChat()">💬 Chat with AI</button>
+
+<script>
+  // 1. Google AI Studio (aistudio.google.com) se free API Key leke yahan daal do
+  const GEMINI_API_TOKEN = "PASTE_YOUR_GEMINI_API_KEY_HERE";
+
+  function togglePortfolioChat() {
+    const box = document.getElementById("ai-chat-panel");
+    box.style.display = (box.style.display === "flex") ? "none" : "flex";
+  }
+
+  async function executeAiQuery() {
+    const input = document.getElementById("ai-input-val");
+    const query = input.value.trim();
+    if (!query) return;
+
+    const chatArea = document.getElementById("ai-chat-msgs");
+
+    // Visitor Message
+    const userDiv = document.createElement("div");
+    userDiv.className = "msg-user";
+    userDiv.innerText = query;
+    chatArea.appendChild(userDiv);
+    input.value = "";
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    // AI Loading Message
+    const botDiv = document.createElement("div");
+    botDiv.className = "msg-ai";
+    botDiv.innerText = "Analyzing response...";
+    chatArea.appendChild(botDiv);
+
+    try {
+      const systemPrompt = "You are the AI assistant representing Swapnil Singh's Cyber Security Portfolio. Provide short, smart, professional replies answering questions about Swapnil's cyber security knowledge, penetration testing, skills, and projects.";
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_TOKEN}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: `${systemPrompt}\n\nVisitor: ${query}\nAssistant:` }]
+          }]
+        })
+      });
+
+      const json = await res.json();
+      const output = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      botDiv.innerText = output ? output.trim() : "Unable to generate response right now.";
+    } catch (e) {
+      botDiv.innerText = "API key missing or network error. Please configure the Gemini API key.";
+    }
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+</script>
+<!-- ================== AI CHAT ASSISTANT END ================== -->
 </body>
 </html>
