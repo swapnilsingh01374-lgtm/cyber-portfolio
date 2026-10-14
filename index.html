@@ -478,7 +478,7 @@
             }
         });
     </script>
-   <!-- ================== AI CHAT ASSISTANT (ENGLISH) START ================== -->
+  <!-- ================== OFFLINE CYBER ASSISTANT (NO API KEY NEEDED) ================== -->
 <style>
   #ai-chat-btn {
     position: fixed;
@@ -494,10 +494,6 @@
     cursor: pointer;
     box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
     z-index: 99999;
-    transition: transform 0.2s ease;
-  }
-  #ai-chat-btn:hover {
-    transform: scale(1.05);
   }
   #ai-chat-panel {
     display: none;
@@ -505,11 +501,10 @@
     bottom: 80px;
     right: 24px;
     width: 320px;
-    height: 420px;
+    height: 400px;
     background: rgba(13, 17, 23, 0.95);
     border: 1px solid #30363d;
     border-radius: 12px;
-    backdrop-filter: blur(8px);
     flex-direction: column;
     overflow: hidden;
     z-index: 99999;
@@ -527,11 +522,6 @@
     color: #00ff66;
     font-family: 'Fira Code', monospace;
   }
-  #ai-chat-head span.close-btn {
-    cursor: pointer;
-    color: #8b949e;
-    font-weight: bold;
-  }
   #ai-chat-msgs {
     flex: 1;
     padding: 12px;
@@ -547,7 +537,6 @@
     padding: 8px 12px;
     border-radius: 8px 8px 8px 2px;
     align-self: flex-start;
-    max-width: 82%;
     border-left: 2px solid #00ff66;
     line-height: 1.4;
   }
@@ -557,9 +546,7 @@
     padding: 8px 12px;
     border-radius: 8px 8px 2px 8px;
     align-self: flex-end;
-    max-width: 82%;
     font-weight: 500;
-    line-height: 1.4;
   }
   #ai-chat-bar {
     display: flex;
@@ -575,10 +562,6 @@
     padding: 8px 10px;
     border-radius: 6px;
     outline: none;
-    font-size: 13px;
-  }
-  #ai-input-val:focus {
-    border-color: #00ff66;
   }
   #ai-send-btn {
     background: #00ff66;
@@ -594,72 +577,66 @@
 
 <div id="ai-chat-panel">
   <div id="ai-chat-head">
-    <span>[AI] Swapnil Assistant</span>
-    <span class="close-btn" onclick="togglePortfolioChat()">✕</span>
+    <span>Swapnil Assistant</span>
+    <span style="cursor:pointer;" onclick="togglePortfolioChat()">✕</span>
   </div>
   <div id="ai-chat-msgs">
-    <div class="msg-ai">Hello! Feel free to ask me anything about Swapnil's cybersecurity skills, projects, or background.</div>
+    <div class="msg-ai">Hello! Ask me about Swapnil's skills, cybersecurity projects, certifications, or how to contact him.</div>
   </div>
   <div id="ai-chat-bar">
-    <input type="text" id="ai-input-val" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') executeAiQuery()" />
-    <button id="ai-send-btn" onclick="executeAiQuery()">Send</button>
+    <input type="text" id="ai-input-val" placeholder="Ask about skills, projects..." onkeydown="if(event.key==='Enter') runLocalBot()" />
+    <button id="ai-send-btn" onclick="runLocalBot()">Send</button>
   </div>
 </div>
 
-<button id="ai-chat-btn" onclick="togglePortfolioChat()">💬 Chat with AI</button>
+<button id="ai-chat-btn" onclick="togglePortfolioChat()">💬 Chat Assistant</button>
 
 <script>
-  // Paste your Gemini API key from https://aistudio.google.com/
-  const GEMINI_API_TOKEN = "AQ.Ab8RN6J971JCouw4hDc3oKJPha4VT7FU3JAenSGPoS4sm98L_A";
-
   function togglePortfolioChat() {
     const box = document.getElementById("ai-chat-panel");
     box.style.display = (box.style.display === "flex") ? "none" : "flex";
   }
 
-  async function executeAiQuery() {
+  function runLocalBot() {
     const input = document.getElementById("ai-input-val");
-    const query = input.value.trim();
-    if (!query) return;
+    const q = input.value.trim().toLowerCase();
+    if (!q) return;
 
     const chatArea = document.getElementById("ai-chat-msgs");
 
-    // Visitor Message
-    const userDiv = document.createElement("div");
-    userDiv.className = "msg-user";
-    userDiv.innerText = query;
-    chatArea.appendChild(userDiv);
+    // Show user message
+    const u = document.createElement("div");
+    u.className = "msg-user";
+    u.innerText = input.value;
+    chatArea.appendChild(u);
     input.value = "";
-    chatArea.scrollTop = chatArea.scrollHeight;
 
-    // AI Loading Message
-    const botDiv = document.createElement("div");
-    botDiv.className = "msg-ai";
-    botDiv.innerText = "Thinking...";
-    chatArea.appendChild(botDiv);
+    // Instant responses
+    let reply = "I specialize in answering questions regarding Swapnil's cybersecurity profile. Try asking about 'skills', 'projects', 'certifications', or 'contact'.";
 
-    try {
-      const systemPrompt = "You are the AI assistant representing Swapnil Singh's Cyber Security Portfolio. Respond strictly in professional English. Keep your answers concise, smart, and focused on Swapnil's skills, certifications, and projects.";
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_TOKEN}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: `${systemPrompt}\n\nVisitor: ${query}\nAssistant:` }]
-          }]
-        })
-      });
-
-      const json = await res.json();
-      const output = json.candidates?.[0]?.content?.parts?.[0]?.text;
-      botDiv.innerText = output ? output.trim() : "Unable to generate response right now.";
-    } catch (e) {
-      botDiv.innerText = "Error connecting to AI service. Please verify the API key.";
+    if (q.includes("hi") || q.includes("hello") || q.includes("hey")) {
+      reply = "Hello! How can I assist you with Swapnil's portfolio today?";
+    } else if (q.includes("skill") || q.includes("technolog") || q.includes("tool")) {
+      reply = "Swapnil specializes in Ethical Hacking, Network Security, Penetration Testing, Linux, Python, and Web Application Security.";
+    } else if (q.includes("project") || q.includes("work")) {
+      reply = "Swapnil has built projects focused on vulnerability assessment, network penetration testing, and security tooling. Check the projects section on this page!";
+    } else if (q.includes("contact") || q.includes("hire") || q.includes("email")) {
+      reply = "You can get in touch with Swapnil via the Contact section below or through LinkedIn/GitHub.";
+    } else if (q.includes("who") || q.includes("about") || q.includes("swapnil")) {
+      reply = "Swapnil Singh is a passionate Cybersecurity Analyst & Explorer dedicated to securing systems and discovering vulnerabilities.";
     }
+
+    setTimeout(() => {
+      const b = document.createElement("div");
+      b.className = "msg-ai";
+      b.innerText = reply;
+      chatArea.appendChild(b);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }, 300);
+
     chatArea.scrollTop = chatArea.scrollHeight;
   }
 </script>
-<!-- ================== AI CHAT ASSISTANT (ENGLISH) END ================== -->
+<!-- ================== END ================== -->
 </body>
 </html>
